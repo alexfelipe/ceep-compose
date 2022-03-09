@@ -3,7 +3,6 @@ package br.com.alexf.ceep
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -11,19 +10,18 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import br.com.alexf.ceep.database.dao.NoteDao
-import br.com.alexf.ceep.database.entity.NoteEntity
-import br.com.alexf.ceep.model.Note
+import br.com.alexf.ceep.screen.NoteDetailsScreen
 import br.com.alexf.ceep.screen.NoteFormScreen
 import br.com.alexf.ceep.screen.NotesListScreen
 import br.com.alexf.ceep.ui.theme.CeepTheme
-import br.com.alexf.ceep.ui.viewmodel.NoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -61,6 +59,16 @@ private fun NavigationRouting(
         }
         composable("formNote") {
             NoteFormScreen(navController)
+        }
+        composable(
+            "noteDetails/{noteId}",
+            arguments = listOf(navArgument("noteId") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            NoteDetailsScreen(
+                backStackEntry.arguments?.getString("noteId")
+            )
         }
     }
 }

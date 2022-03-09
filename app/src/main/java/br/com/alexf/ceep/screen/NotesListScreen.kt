@@ -1,6 +1,7 @@
 package br.com.alexf.ceep.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -20,29 +21,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import br.com.alexf.ceep.model.Note
-import br.com.alexf.ceep.ui.viewmodel.NoteViewModel
+import br.com.alexf.ceep.ui.viewmodel.NoteListScreenViewModel
 
 @Composable
 fun NotesListScreen(
     navController: NavController
 ) {
-    val hiltViewModel = hiltViewModel<NoteViewModel>()
+    val hiltViewModel = hiltViewModel<NoteListScreenViewModel>()
     val notes by hiltViewModel
         .findAll()
         .collectAsState(initial = emptyList())
-    NotesListScreen(notes)
+    NotesListScreen(
+        notes,
+        navController
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NotesListScreen(notes: List<Note>) {
+private fun NotesListScreen(
+    notes: List<Note>,
+    navController: NavController
+) {
     if (notes.isNotEmpty()) {
         LazyVerticalGrid(cells = GridCells.Fixed(2)) {
             items(notes, spans = null) { note ->
-                NoteItem(note)
+                NoteItem(note) { clickedNote ->
+                    navController.navigate("noteDetails/${clickedNote.id}")
+                }
             }
         }
     } else {
@@ -71,12 +80,16 @@ private fun NotFoundNotesMessage() {
 }
 
 @Composable
-private fun NoteItem(note: Note) {
+private fun NoteItem(
+    note: Note,
+    onNoteClick: (clickedNote: Note) -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(100.dp)
             .padding(8.dp)
+            .clickable(onClick = { onNoteClick(note) })
     ) {
         Column {
             Text(
@@ -103,12 +116,16 @@ private fun NotesListScreenWithNotesPreview() {
                 title = "title $it",
                 message = "message $it"
             )
-        })
+        }),
+        rememberNavController()
     )
 }
 
 @Preview(showSystemUi = true)
 @Composable
 private fun NotesListScreenWithoutNotesPreview() {
-    NotesListScreen(emptyList())
+    NotesListScreen(
+        emptyList(),
+        rememberNavController()
+    )
 }

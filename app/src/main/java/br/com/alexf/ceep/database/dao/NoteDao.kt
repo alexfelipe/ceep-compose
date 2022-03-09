@@ -15,4 +15,7 @@ interface NoteDao {
     @Insert
     suspend fun save(noteEntity: NoteEntity)
 
+    @Query("SELECT * FROM note WHERE id = :noteId")
+    fun findById(noteId: String) : Flow<NoteEntity>
+
 }

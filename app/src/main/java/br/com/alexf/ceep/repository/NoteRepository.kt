@@ -17,5 +17,7 @@ class NoteRepository @Inject constructor(
         dao.save(note)
     }
 
+    fun findById(noteId: String): Flow<NoteEntity> = dao.findById(noteId)
+
 }
 
