@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @HiltViewModel
-class NoteViewModel @Inject constructor(
+class NoteListScreenViewModel @Inject constructor(
     private val repository: NoteRepository
 ) : ViewModel() {
 
