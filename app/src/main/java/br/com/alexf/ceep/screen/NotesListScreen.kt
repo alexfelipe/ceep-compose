@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
+
 package br.com.alexf.ceep.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,12 +10,12 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -24,28 +26,48 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.alexf.ceep.model.Note
-import br.com.alexf.ceep.ui.viewmodel.NoteListScreenViewModel
+import br.com.alexf.ceep.ui.viewmodel.NotesListScreenViewModel
+import br.com.alexf.ceep.ui.viewmodel.NotesListUiState
 
 @Composable
-fun NotesListScreen(
+fun NotesList(
     navController: NavController
 ) {
-    val hiltViewModel = hiltViewModel<NoteListScreenViewModel>()
-    val notes by hiltViewModel
-        .findAll()
-        .collectAsState(initial = emptyList())
-    NotesListScreen(
-        notes,
-        navController
-    )
+    val viewModel = hiltViewModel<NotesListScreenViewModel>()
+    val uiState = viewModel.uiState
+    LaunchedEffect(null) {
+        viewModel.findAll()
+    }
+    NotesListWithProgress(uiState, navController)
+}
+
+@Composable
+private fun NotesListWithProgress(
+    uiState: NotesListUiState,
+    navController: NavController
+) {
+    Column {
+        if (uiState.loading) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            )
+        }
+        NotesList(
+            uiState,
+            navController
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NotesListScreen(
-    notes: List<Note>,
+private fun NotesList(
+    uiState: NotesListUiState,
     navController: NavController
 ) {
+    val notes = uiState.notes
     if (notes.isNotEmpty()) {
         LazyVerticalGrid(cells = GridCells.Fixed(2)) {
             items(notes, spans = null) { note ->
@@ -54,9 +76,12 @@ private fun NotesListScreen(
                 }
             }
         }
-    } else {
+    }
+    if (!uiState.loading && uiState.notes.isEmpty()
+    ) {
         NotFoundNotesMessage()
     }
+
 }
 
 @Composable
@@ -109,24 +134,45 @@ private fun NoteItem(
 
 @Preview(showSystemUi = true)
 @Composable
-private fun NotesListScreenWithNotesPreview() {
-    NotesListScreen(
-        List(10, init = {
-            Note(
-                id = it.toString(),
-                title = "title $it",
-                message = "message $it"
-            )
-        }),
+private fun NotesListWithProgress() {
+    NotesListWithProgress(
+        uiState = NotesListUiState(
+            notes = List(3, init = {
+                Note(
+                    id = it.toString(),
+                    title = "title $it",
+                    message = "message $it"
+                )
+            }), loading = true
+        ), navController = rememberNavController()
+    )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun NotesListWithNotesPreview() {
+    NotesList(
+        uiState = NotesListUiState(
+            notes = List(10, init = {
+                Note(
+                    id = it.toString(),
+                    title = "title $it",
+                    message = "message $it"
+                )
+            })
+        ),
         rememberNavController()
     )
 }
 
 @Preview(showSystemUi = true)
 @Composable
-private fun NotesListScreenWithoutNotesPreview() {
-    NotesListScreen(
-        emptyList(),
+private fun NotesListWithoutNotesPreview() {
+    NotesList(
+        uiState = NotesListUiState(
+            emptyList(),
+            loading = false
+        ),
         rememberNavController()
     )
 }

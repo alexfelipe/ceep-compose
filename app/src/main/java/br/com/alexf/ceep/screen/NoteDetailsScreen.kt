@@ -19,13 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import br.com.alexf.ceep.ui.viewmodel.NoteDetailsScreenViewModel
 import br.com.alexf.ceep.ui.viewmodel.NoteDetailsState
 import kotlinx.coroutines.launch
 
 @Composable
-fun NoteDetailsScreen(
+fun NoteDetails(
     navController: NavController,
     noteId: String?
 ) {
@@ -37,7 +36,7 @@ fun NoteDetailsScreen(
     }
     val scope = rememberCoroutineScope()
     val uiState = viewModel.uiState
-    NoteDetailsScreen(uiState,
+    NoteDetails(uiState,
         onDeleteNoteClick = {
             scope.launch {
                 noteId?.let {
@@ -56,7 +55,7 @@ fun NoteDetailsScreen(
 }
 
 @Composable
-private fun NoteDetailsScreen(
+private fun NoteDetails(
     uiState: NoteDetailsState,
     onDeleteNoteClick: () -> Unit = {},
     onEditNoteClick: () -> Unit = {}
@@ -106,8 +105,8 @@ private fun NoteDetailsScreen(
 
 @Preview(showSystemUi = true)
 @Composable
-private fun NoteDetailsScreenPreview() {
-    NoteDetailsScreen(
+private fun NoteDetailsPreview() {
+    NoteDetails(
         uiState = NoteDetailsState(
             title = LoremIpsum(10).values.first(),
             message = LoremIpsum(50).values.first()

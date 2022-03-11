@@ -18,9 +18,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.com.alexf.ceep.database.dao.NoteDao
-import br.com.alexf.ceep.screen.NoteDetailsScreen
+import br.com.alexf.ceep.screen.NoteDetails
 import br.com.alexf.ceep.screen.NoteFormScreen
-import br.com.alexf.ceep.screen.NotesListScreen
+import br.com.alexf.ceep.screen.NotesList
 import br.com.alexf.ceep.ui.theme.CeepTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -51,13 +51,14 @@ private fun NavigationRouting(
     ) {
         composable("home") {
             CeepApp(navController) {
-                NotesListScreen(navController)
+                NotesList(navController)
             }
         }
         composable("notesList") {
-            NotesListScreen(navController)
+            NotesList(navController)
         }
-        composable("formNote?noteId={noteId}",
+        composable(
+            "formNote?noteId={noteId}",
             arguments = listOf(navArgument("noteId") { defaultValue = "" })
         ) {
             NoteFormScreen(
@@ -71,7 +72,7 @@ private fun NavigationRouting(
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            NoteDetailsScreen(
+            NoteDetails(
                 navController,
                 backStackEntry.arguments?.getString("noteId")
             )
