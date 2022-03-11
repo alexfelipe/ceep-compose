@@ -63,7 +63,8 @@ private fun NotesListScreen(
 private fun NotFoundNotesMessage() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
     ) {
         Text(
             "Notes not found",

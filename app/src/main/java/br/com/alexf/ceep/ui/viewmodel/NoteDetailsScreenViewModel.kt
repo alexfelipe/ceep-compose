@@ -5,11 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.alexf.ceep.database.entity.toNote
 import br.com.alexf.ceep.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +24,7 @@ class NoteDetailsScreenViewModel @Inject constructor(
     fun findById(noteId: String) {
         viewModelScope.launch {
             repository.findById(noteId)
+                .filterNotNull()
                 .collect {
                     uiState = uiState.copy(
                         title = it.title,
@@ -32,6 +32,10 @@ class NoteDetailsScreenViewModel @Inject constructor(
                     )
                 }
         }
+    }
+
+    suspend fun remove(id: String) {
+        repository.remove(id)
     }
 
     var uiState: NoteDetailsState by mutableStateOf(NoteDetailsState())

@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,10 +23,18 @@ import br.com.alexf.ceep.ui.viewmodel.NoteFormUiState
 import kotlinx.coroutines.launch
 
 @Composable
-fun NoteFormScreen(navController: NavController) {
+fun NoteFormScreen(
+    navController: NavController,
+    noteId: String? = null
+) {
     val viewModel = hiltViewModel<NoteFormScreenViewModel>()
-    val uiState = viewModel.uiState
     val scope = rememberCoroutineScope()
+    LaunchedEffect(keys = emptyArray(), block = {
+        noteId?.let {
+            viewModel.findById(it)
+        }
+    })
+    val uiState = viewModel.uiState
     NoteForm(uiState,
         onTitleChange = {
             viewModel.setTitle(it)
@@ -77,7 +86,7 @@ private fun NoteForm(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Done, "save the note")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save", )
+                Text("Save")
             }
         }
     }

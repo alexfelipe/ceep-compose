@@ -19,5 +19,9 @@ class NoteRepository @Inject constructor(
 
     fun findById(noteId: String): Flow<NoteEntity> = dao.findById(noteId)
 
+    suspend fun remove(id: String) {
+        dao.remove(id)
+    }
+
 }
 

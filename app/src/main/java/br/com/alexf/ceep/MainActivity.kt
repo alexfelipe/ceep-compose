@@ -57,8 +57,13 @@ private fun NavigationRouting(
         composable("notesList") {
             NotesListScreen(navController)
         }
-        composable("formNote") {
-            NoteFormScreen(navController)
+        composable("formNote?noteId={noteId}",
+            arguments = listOf(navArgument("noteId") { defaultValue = "" })
+        ) {
+            NoteFormScreen(
+                navController,
+                it.arguments?.getString("noteId")
+            )
         }
         composable(
             "noteDetails/{noteId}",
@@ -67,6 +72,7 @@ private fun NavigationRouting(
             })
         ) { backStackEntry ->
             NoteDetailsScreen(
+                navController,
                 backStackEntry.arguments?.getString("noteId")
             )
         }
