@@ -48,7 +48,7 @@ fun NoteDetails(
         onEditNoteClick = {
             scope.launch {
                 noteId?.let {
-                    navController.navigate("formNote?noteId=$noteId")
+                    navController.navigate("noteForm?noteId=$noteId")
                 }
             }
         })

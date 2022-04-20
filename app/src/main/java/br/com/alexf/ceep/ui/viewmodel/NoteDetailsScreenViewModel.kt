@@ -17,10 +17,6 @@ class NoteDetailsScreenViewModel @Inject constructor(
     private val repository: NoteRepository
 ) : ViewModel() {
 
-    fun showSnackBar() {
-        uiState = uiState.copy(showSnackbar = true)
-    }
-
     fun findById(noteId: String) {
         viewModelScope.launch {
             repository.findById(noteId)

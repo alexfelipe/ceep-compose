@@ -4,13 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,10 +16,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.com.alexf.ceep.database.dao.NoteDao
-import br.com.alexf.ceep.screen.NoteDetails
-import br.com.alexf.ceep.screen.NoteFormScreen
-import br.com.alexf.ceep.screen.NotesList
+import br.com.alexf.ceep.navigation.*
+import br.com.alexf.ceep.screen.*
 import br.com.alexf.ceep.ui.theme.CeepTheme
+import br.com.alexf.ceep.ui.viewmodel.NoteFormUiState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -47,18 +45,18 @@ private fun NavigationRouting(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = START
     ) {
-        composable("home") {
-            CeepApp(navController) {
-                NotesList(navController)
+        composable(START) {
+            CeepApp {
+                NotesListScreen(navController)
             }
         }
-        composable("notesList") {
-            NotesList(navController)
+        composable(NOTES_LIST) {
+            NotesListScreen(navController)
         }
         composable(
-            "formNote?noteId={noteId}",
+            NOTE_FORM_WITH_PARAMETER,
             arguments = listOf(navArgument("noteId") { defaultValue = "" })
         ) {
             NoteFormScreen(
@@ -67,7 +65,7 @@ private fun NavigationRouting(
             )
         }
         composable(
-            "noteDetails/{noteId}",
+            NOTE_DETAILS_WITH_ARGUMENT,
             arguments = listOf(navArgument("noteId") {
                 type = NavType.StringType
             })
@@ -82,7 +80,6 @@ private fun NavigationRouting(
 
 @Composable
 private fun CeepApp(
-    navController: NavController,
     content: @Composable () -> Unit = {}
 ) {
     CeepTheme {
@@ -90,22 +87,7 @@ private fun CeepApp(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            Scaffold(
-                floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            navController.navigate("formNote")
-                        },
-                        icon = {
-                            Icon(
-                                Icons.Filled.Add,
-                                contentDescription = "Add new note"
-                            )
-                        }, text = { Text("new note") })
-                }) {
-                content()
-            }
-
+            content()
         }
     }
 }
@@ -113,5 +95,5 @@ private fun CeepApp(
 @Preview(showBackground = true)
 @Composable
 private fun CeepAppPreview() {
-    CeepApp(rememberNavController())
+    CeepApp()
 }

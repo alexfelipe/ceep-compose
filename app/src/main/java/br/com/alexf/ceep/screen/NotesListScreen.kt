@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,27 +24,45 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import br.com.alexf.ceep.model.Note
+import br.com.alexf.ceep.navigation.NotesListDirections
 import br.com.alexf.ceep.ui.viewmodel.NotesListScreenViewModel
 import br.com.alexf.ceep.ui.viewmodel.NotesListUiState
 
 @Composable
-fun NotesList(
-    navController: NavController
+fun NotesListScreen(
+    navController: NavController,
+    directions: NotesListDirections = NotesListDirections(navController)
 ) {
     val viewModel = hiltViewModel<NotesListScreenViewModel>()
     val uiState = viewModel.uiState
     LaunchedEffect(null) {
         viewModel.findAll()
     }
-    NotesListWithProgress(uiState, navController)
+    Scaffold(
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    directions.goToNoteForm()
+                },
+                icon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Add new note"
+                    )
+                }, text = { Text("new note") })
+        }) {
+        NotesListWithProgress(uiState) { note ->
+            directions.goToDetails(note.id)
+        }
+    }
+
 }
 
 @Composable
 private fun NotesListWithProgress(
     uiState: NotesListUiState,
-    navController: NavController
+    onItemClick: (note: Note) -> Unit = {}
 ) {
     Column {
         if (uiState.loading) {
@@ -56,26 +72,23 @@ private fun NotesListWithProgress(
                     .fillMaxWidth()
             )
         }
-        NotesList(
-            uiState,
-            navController
+        NotesListScreen(
+            uiState, onItemClick
         )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NotesList(
+private fun NotesListScreen(
     uiState: NotesListUiState,
-    navController: NavController
+    onItemClick: (note: Note) -> Unit = {}
 ) {
     val notes = uiState.notes
     if (notes.isNotEmpty()) {
         LazyVerticalGrid(cells = GridCells.Fixed(2)) {
             items(notes, spans = null) { note ->
-                NoteItem(note) { clickedNote ->
-                    navController.navigate("noteDetails/${clickedNote.id}")
-                }
+                NoteItem(note, onItemClick)
             }
         }
     }
@@ -147,14 +160,14 @@ private fun NotesListWithProgress() {
                     message = "message $it"
                 )
             }), loading = true
-        ), navController = rememberNavController()
+        )
     )
 }
 
 @Preview(showSystemUi = true)
 @Composable
 private fun NotesListWithNotesPreview() {
-    NotesList(
+    NotesListScreen(
         uiState = NotesListUiState(
             notes = List(10, init = {
                 Note(
@@ -163,19 +176,17 @@ private fun NotesListWithNotesPreview() {
                     message = "message $it"
                 )
             })
-        ),
-        rememberNavController()
+        )
     )
 }
 
 @Preview(showSystemUi = true)
 @Composable
 private fun NotesListWithoutNotesPreview() {
-    NotesList(
+    NotesListScreen(
         uiState = NotesListUiState(
             emptyList(),
             loading = false
-        ),
-        rememberNavController()
+        )
     )
 }

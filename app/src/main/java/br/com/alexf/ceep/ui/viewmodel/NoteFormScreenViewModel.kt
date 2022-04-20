@@ -9,7 +9,6 @@ import br.com.alexf.ceep.model.Note
 import br.com.alexf.ceep.model.toNoteEntity
 import br.com.alexf.ceep.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -49,7 +48,8 @@ class NoteFormScreenViewModel @Inject constructor(
             uiState = uiState.copy(
                 id = id,
                 title = entity.title,
-                message = entity.message
+                message = entity.message,
+                isNewNote = false
             )
         }
     }
@@ -59,5 +59,6 @@ class NoteFormScreenViewModel @Inject constructor(
 data class NoteFormUiState(
     var id: String = UUID.randomUUID().toString(),
     var title: String = "",
-    var message: String = ""
+    var message: String = "",
+    var isNewNote: Boolean = true
 )
