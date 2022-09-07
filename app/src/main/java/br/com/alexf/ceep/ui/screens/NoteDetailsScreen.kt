@@ -1,4 +1,4 @@
-package br.com.alexf.ceep.screen
+package br.com.alexf.ceep.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,8 +25,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NoteDetails(
-    navController: NavController,
-    noteId: String?
+    noteId: String?,
+    onDeleteNoteClick: () -> Unit = {},
+    onEditNoteClick: (String) -> Unit = {}
 ) {
     val viewModel = hiltViewModel<NoteDetailsScreenViewModel>()
     LaunchedEffect(keys = emptyArray()) {
@@ -41,14 +42,14 @@ fun NoteDetails(
             scope.launch {
                 noteId?.let {
                     viewModel.remove(noteId)
-                    navController.popBackStack()
+                    onDeleteNoteClick()
                 }
             }
         },
         onEditNoteClick = {
             scope.launch {
-                noteId?.let {
-                    navController.navigate("noteForm?noteId=$noteId")
+                noteId?.let { noteId ->
+                    onEditNoteClick(noteId)
                 }
             }
         })

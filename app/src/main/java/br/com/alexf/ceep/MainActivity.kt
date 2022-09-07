@@ -8,32 +8,29 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.com.alexf.ceep.database.dao.NoteDao
 import br.com.alexf.ceep.navigation.*
-import br.com.alexf.ceep.screen.*
+import br.com.alexf.ceep.ui.screens.NoteDetails
+import br.com.alexf.ceep.ui.screens.NoteFormScreen
+import br.com.alexf.ceep.ui.screens.NotesListScreen
 import br.com.alexf.ceep.ui.theme.CeepTheme
-import br.com.alexf.ceep.ui.viewmodel.NoteFormUiState
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var dao: NoteDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            NavigationRouting(navController)
+            CeepApp {
+                NavigationRouting(navController)
+            }
         }
     }
 
@@ -41,11 +38,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun CeepApp(
-    content: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
 ) {
     CeepTheme {
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
             content()
@@ -59,23 +57,26 @@ private fun NavigationRouting(
 ) {
     NavHost(
         navController = navController,
-        startDestination = START
+        startDestination = NOTES_LIST
     ) {
-        composable(START) {
-            CeepApp {
-                NotesListScreen(navController)
-            }
-        }
         composable(NOTES_LIST) {
-            NotesListScreen(navController)
+            NotesListScreen(
+                onNewNoteClick = {
+                    navController.navigate(NOTE_FORM)
+                },
+                onNoteClick = { note ->
+                    navController.navigate("$NOTE_DETAILS/${note.id}")
+                })
         }
         composable(
             NOTE_FORM_WITH_PARAMETER,
             arguments = listOf(navArgument("noteId") { defaultValue = "" })
         ) {
             NoteFormScreen(
-                navController,
-                it.arguments?.getString("noteId")
+                it.arguments?.getString("noteId"),
+                onSaveClick = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(
@@ -84,10 +85,17 @@ private fun NavigationRouting(
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            NoteDetails(
-                navController,
-                backStackEntry.arguments?.getString("noteId")
-            )
+            val noteId = backStackEntry.arguments?.getString("noteId")
+            noteId?.let {
+                NoteDetails(
+                    noteId = it,
+                    onDeleteNoteClick = {
+                        navController.popBackStack()
+                    },
+                    onEditNoteClick = { noteId ->
+                        navController.navigate("${NOTE_FORM}noteId={$noteId}")
+                    })
+            } ?: navController.popBackStack()
         }
     }
 }
