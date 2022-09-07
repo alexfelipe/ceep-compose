@@ -40,6 +40,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+private fun CeepApp(
+    content: @Composable () -> Unit = {}
+) {
+    CeepTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colors.background
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
 private fun NavigationRouting(
     navController: NavHostController
 ) {
@@ -76,24 +90,4 @@ private fun NavigationRouting(
             )
         }
     }
-}
-
-@Composable
-private fun CeepApp(
-    content: @Composable () -> Unit = {}
-) {
-    CeepTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colors.background
-        ) {
-            content()
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun CeepAppPreview() {
-    CeepApp()
 }
