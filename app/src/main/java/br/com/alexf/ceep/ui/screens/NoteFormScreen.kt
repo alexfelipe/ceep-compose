@@ -1,34 +1,39 @@
-package br.com.alexf.ceep.screen
+package br.com.alexf.ceep.ui.screens
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.rounded.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import br.com.alexf.ceep.ui.theme.CeepTheme
 import br.com.alexf.ceep.ui.viewmodel.NoteFormScreenViewModel
 import br.com.alexf.ceep.ui.viewmodel.NoteFormUiState
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
 @Composable
 fun NoteFormScreen(
-    navController: NavController,
-    noteId: String? = null
+    noteId: String? = null,
+    onSaveClick: () -> Unit = {}
 ) {
     val viewModel = hiltViewModel<NoteFormScreenViewModel>()
     val scope = rememberCoroutineScope()
@@ -46,7 +51,7 @@ fun NoteFormScreen(
         onSaveClick = {
             scope.launch {
                 viewModel.save()
-                navController.popBackStack()
+                onSaveClick()
             }
         },
         onTitleChange = {
@@ -96,8 +101,7 @@ fun NoteForm(
                     .padding(start = 16.dp, top = 8.dp, end = 8.dp)
                     .fillMaxWidth()
                     .requiredHeight(200.dp),
-                label = "Message",
-                textStyle = TextStyle(fontSize = 20.sp)
+                label = "Message"
             )
         }
     }
@@ -109,8 +113,13 @@ private fun NoteFormTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String,
-    textStyle: TextStyle = TextStyle()
+    textStyle: TextStyle = LocalTextStyle.current
 ) {
+    val textColor = textStyle.color.takeOrElse {
+        TextFieldDefaults.textFieldColors().textColor(true).value
+    }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -118,24 +127,28 @@ private fun NoteFormTextField(
             if (value.isEmpty()) {
                 Text(
                     label,
-                    fontSize = textStyle.fontSize,
-                    color = Color.Gray.copy(alpha = 0.7f)
+                    style = mergedTextStyle
                 )
             }
             innerTextField()
         },
         modifier = modifier,
-        textStyle = textStyle
+        textStyle = mergedTextStyle
     )
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun NoteFormPreview() {
-    NoteForm(
-        NoteFormUiState(
-            "My first note",
-            "this is a note for test"
-        ),
-    )
+    CeepTheme {
+        Surface {
+            NoteForm(
+                NoteFormUiState(
+                    "My first note",
+                    "this is a note for test"
+                ),
+            )
+        }
+    }
 }
