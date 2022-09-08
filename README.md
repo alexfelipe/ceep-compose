@@ -6,6 +6,8 @@ The sample project to practice Jetpack Compose
 
 Notes CRUD with title and description
 
+![Ceep-sample](https://user-images.githubusercontent.com/8989346/189006482-9ac3a0c3-a637-4a13-b7f3-5e863b45655a.gif)
+
 ## ✔️ Techniques used 
 
 - Jetpack Compose
