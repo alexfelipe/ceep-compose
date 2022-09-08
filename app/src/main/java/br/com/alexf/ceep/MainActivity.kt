@@ -1,6 +1,7 @@
 package br.com.alexf.ceep
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,8 +73,10 @@ private fun NavigationRouting(
             NOTE_FORM_WITH_PARAMETER,
             arguments = listOf(navArgument("noteId") { defaultValue = "" })
         ) {
+            val noteId = it.arguments?.getString("noteId")
+            Log.i("MainActivity", "NavigationRouting: navigate to form with parameter: $noteId")
             NoteFormScreen(
-                it.arguments?.getString("noteId"),
+                noteId,
                 onSaveClick = {
                     navController.popBackStack()
                 }
@@ -93,7 +96,7 @@ private fun NavigationRouting(
                         navController.popBackStack()
                     },
                     onEditNoteClick = { noteId ->
-                        navController.navigate("${NOTE_FORM}noteId={$noteId}")
+                        navController.navigate("${NOTE_FORM}?noteId=$noteId")
                     })
             } ?: navController.popBackStack()
         }
