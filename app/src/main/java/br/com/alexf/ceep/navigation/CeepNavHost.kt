@@ -10,7 +10,14 @@ fun CeepNavHost(navController: NavHostController) {
         navController = navController,
         startDestination = notesListRoute
     ) {
-        notesListScreen(navController)
+        notesListScreen(
+            navigateToNoteform = {
+                navController.navigateToNoteForm()
+            },
+            navigateToNoteDetails = { id ->
+                navController.navigateToNoteDetails(id)
+            },
+        )
         noteFormScreen(navController)
         noteDetailsScreen(navController)
     }

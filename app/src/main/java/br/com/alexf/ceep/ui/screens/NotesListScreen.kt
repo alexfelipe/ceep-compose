@@ -10,9 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,21 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.alexf.ceep.model.Note
-import br.com.alexf.ceep.ui.viewmodel.NotesListScreenViewModel
-import br.com.alexf.ceep.ui.viewmodel.NotesListUiState
+import br.com.alexf.ceep.ui.uistates.NotesListUiState
 
 @Composable
 fun NotesListScreen(
     onNewNoteClick: () -> Unit = {},
-    onNoteClick: (note: Note) -> Unit = {}
+    onNoteClick: (note: Note) -> Unit = {},
+    uiState: NotesListUiState
 ) {
-    val viewModel = hiltViewModel<NotesListScreenViewModel>()
-    val uiState = viewModel.uiState
-    LaunchedEffect(null) {
-        viewModel.findAll()
-    }
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -46,33 +38,24 @@ fun NotesListScreen(
                     )
                 }, text = { Text("new note") })
         }) {
-        NotesListWithProgress(uiState, onItemClick = onNoteClick)
-    }
-
-}
-
-@Composable
-private fun NotesListWithProgress(
-    uiState: NotesListUiState,
-    onItemClick: (note: Note) -> Unit = {}
-) {
-    Column {
-        if (uiState.loading) {
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            )
+        Box(modifier = Modifier.padding(it)) {
+            when (uiState) {
+                NotesListUiState.Loading -> Box(Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                }
+                is NotesListUiState.Success -> NotesListScreen(
+                    uiState = uiState,
+                    onItemClick = onNoteClick
+                )
+            }
         }
-        NotesListScreen(
-            uiState, onItemClick
-        )
     }
+
 }
 
 @Composable
 private fun NotesListScreen(
-    uiState: NotesListUiState,
+    uiState: NotesListUiState.Success,
     onItemClick: (note: Note) -> Unit = {}
 ) {
     val notes = uiState.notes
@@ -82,12 +65,9 @@ private fun NotesListScreen(
                 NoteItem(note, onItemClick)
             }
         }
-    }
-    if (!uiState.loading && uiState.notes.isEmpty()
-    ) {
+    } else {
         NotFoundNotesMessage()
     }
-
 }
 
 @Composable
@@ -147,16 +127,8 @@ private fun NoteItem(
 @Preview(showSystemUi = true)
 @Composable
 private fun NotesListWithProgress() {
-    NotesListWithProgress(
-        uiState = NotesListUiState(
-            notes = List(3, init = {
-                Note(
-                    id = it.toString(),
-                    title = "title $it",
-                    message = "message $it"
-                )
-            }), loading = true
-        )
+    NotesListScreen(
+        uiState = NotesListUiState.Loading
     )
 }
 
@@ -164,7 +136,7 @@ private fun NotesListWithProgress() {
 @Composable
 private fun NotesListWithNotesPreview() {
     NotesListScreen(
-        uiState = NotesListUiState(
+        uiState = NotesListUiState.Success(
             notes = List(10, init = {
                 Note(
                     id = it.toString(),
@@ -180,9 +152,8 @@ private fun NotesListWithNotesPreview() {
 @Composable
 private fun NotesListWithoutNotesPreview() {
     NotesListScreen(
-        uiState = NotesListUiState(
-            emptyList(),
-            loading = false
+        uiState = NotesListUiState.Success(
+            emptyList()
         )
     )
 }

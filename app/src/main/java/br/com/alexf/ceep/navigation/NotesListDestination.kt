@@ -1,24 +1,30 @@
 package br.com.alexf.ceep.navigation
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import br.com.alexf.ceep.ui.screens.NotesListScreen
+import br.com.alexf.ceep.ui.viewmodel.NotesListScreenViewModel
 
 internal const val notesListRoute = "noteList"
 
 fun NavGraphBuilder.notesListScreen(
-    navController: NavHostController
+    navigateToNoteform: () -> Unit,
+    navigateToNoteDetails: (String) -> Unit
 ) {
     composable(notesListRoute) {
+        val viewModel = hiltViewModel<NotesListScreenViewModel>()
+        val uiState by viewModel.uiState.collectAsState()
         NotesListScreen(
-            onNewNoteClick = {
-                navController.navigateToNoteForm()
-            },
+            uiState = uiState,
+            onNewNoteClick = navigateToNoteform,
             onNoteClick = { note ->
-                navController.navigateToNoteDetails(note.id)
-            })
+                navigateToNoteDetails(note.id)
+            }
+        )
     }
 }
 
