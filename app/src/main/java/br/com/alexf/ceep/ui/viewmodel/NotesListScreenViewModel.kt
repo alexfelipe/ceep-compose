@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,20 +24,16 @@ class NotesListScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            findAll().collect { notes ->
-                _uiState.update {
-                    NotesListUiState.Success(notes)
-                }
+            repository
+                .findAll()
+                .map { entities ->
+                    entities.map { entity ->
+                        entity.toNote()
+                    }
+                }.collect { notes ->
+                _uiState.value = NotesListUiState.Success(notes)
             }
         }
     }
-
-    private fun findAll() = repository
-        .findAll()
-        .map { entities ->
-            entities.map { entity ->
-                entity.toNote()
-            }
-        }
 
 }
