@@ -58,40 +58,31 @@ android {
 }
 
 dependencies {
-    val lifecycleVersion = "2.6.1"
-    val roomVersion = "2.5.1"
-    val navVersion = "2.5.3"
-    val hiltVersion = "2.44"
-
-    val composeBom = platform("androidx.compose:compose-bom:2023.04.01")
+    val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
-    
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
-
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
-    implementation("androidx.navigation:navigation-compose:$navVersion")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material:material")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.25.1")
+    implementation(libs.coil.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.core.ktx)
+    implementation(libs.material.icons.extended)
+    implementation(libs.ui)
+    implementation(libs.material)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.activity.compose)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.junit.ext)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.ui.test.junit4)
+    debugImplementation(libs.ui.tooling)
+    implementation(libs.accompanist.systemuicontroller)
 }
 
 kapt {
